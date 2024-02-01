@@ -79,5 +79,5 @@ app.post("/login", async (req, res) => {
 // Server listen
 app.listen(port, () => {
    //console.log(`Server is running on http://localhost:${port}`);
-   console.log("https://foodblogpage.azurewebsites.net");
+   console.log("https://foodblogsite.azurewebsites.net");
 });
