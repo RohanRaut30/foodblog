@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const bcrypt = require('bcryptjs');
 
 const app = express();
 require("./server/database/conn");
@@ -54,30 +55,40 @@ app.post("/sign_up", async (req, res) => {
    }
 });
 
-//login
+//login 
 app.post("/login", async (req, res) => {
    try {
-      const { email, password } = req.body;
-      const user = await Register.findOne({ email });
+       const email = req.body.email;
+       const password = req.body.password;
 
-      if (!user) {
-         return res.status(400).send("Invalid Email or Password");
-      }
+       // Check if the email exists in the database
+       const user = await Register.findOne({ email: email });
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      
-      if (isMatch) {
-         res.status(201).sendFile(__dirname + '/public/index.html');
-      } else {
-         res.status(400).send("Invalid Password");
-      }
+       if (!user) {
+           return res.status(400).send("Invalid Email or Password");
+       }
+
+       // Compare the provided password with the hashed password in the database
+       const isMatch = await bcrypt.compare(password, user.password);
+
+       if (isMatch) {
+           // Passwords match, redirect to a profile page or send a success response
+           return res.status(200).sendFile(__dirname + '/public/index.html');
+       } else {
+           // Passwords don't match, send an error response
+           return res.status(400).send("Invalid Password");
+       }
    } catch (error) {
-      res.status(500).send("Server Error");
+       // Handle any unexpected errors
+       console.error(error);
+       res.status(500).send("Internal Server Error");
    }
 });
 
+
 // Server listen
 app.listen(port, () => {
-   //console.log(`Server is running on http://localhost:${port}`);
+   // for local testing purpose only!!
+   // console.log(`Server is running on http://localhost:${port}`);
    console.log("https://foodblogsite.azurewebsites.net");
 });
